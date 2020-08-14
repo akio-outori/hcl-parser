@@ -6,10 +6,6 @@ import (
   "github.com/ghodss/yaml"
 )
 
-func create_yaml(value []byte) string {
-  return fmt.Sprintf("---\n\n%v\n\n", string(value))
-}
-
 func check(e error) {
   if e != nil {
     panic(e)
@@ -18,7 +14,7 @@ func check(e error) {
 
 func main() {
 
-  yml, err := ioutil.ReadFile("test.yml")
+  yml, err := ioutil.ReadFile("jobspec.yaml")
   check(err)
 
   j2, err := yaml.YAMLToJSON(yml)

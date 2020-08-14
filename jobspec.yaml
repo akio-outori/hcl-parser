@@ -1,0 +1,65 @@
+---
+
+ID: grafana
+Name: grafana
+Type: service
+
+Datacenters:
+  - local
+
+Constraints:
+  - LTarget: "$${node.class}"
+    RTarget: monitoring
+
+TaskGroups:
+  
+  - Name: grafana
+    Count: 1
+    EphemeralDisk:
+      SizeMB: 500
+
+    Tasks:
+
+      - Name: grafana
+        Driver: docker
+        User: grafana
+        network_mode: host
+        Config: 
+          image: density/monitoring/grafana:0
+          extra_hosts:
+            - consul:$${attr.unique.network.ip-address}
+          logging:
+            - config:
+              - max-file: 3
+                max-size: 100m
+                type: json-file
+          port_map:
+            - http: 3000
+    
+    Services:
+
+      - Name: grafana
+        PortLabel: http
+        Checks:
+          - Type: http
+            Path: "/"
+            PortLabel: http
+            Interval: 10000000000
+            Timeout: 9000000000
+    
+    Resources:
+      CPU: 256
+      MemoryMB: 256
+      Networks:
+        - DynamicPorts:
+            - Label: http
+
+    Templates:
+      - DestPath: secrets/.env
+        ChangeMode: restart
+        Splay: 60000000000
+        Envvars: true
+        EmbeddedTmpl: |
+          {{ range ls "monitoring/grafana" }}
+          {{ .Key | toUpper }}={{ .Value }}
+          {{ end }}

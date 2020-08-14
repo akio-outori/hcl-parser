@@ -1,0 +1,64 @@
+---
+
+job:
+
+  name: grafana
+  type: service
+  datacenters:
+    - local
+
+  constraint:
+    attribute: "$${node.class}"
+    value: monitoring
+
+  group:
+    name: grafana
+    count: 1
+    ephemeral_disk:
+      size: 500
+
+    task:
+      name: grafana
+      driver: docker
+      user: grafana
+      config:
+        image: "density/monitoring/grafana:0"
+        network_mode: host
+        extra_hosts:
+          - "consul:$${attr.unique.network.ip-address}"
+        port_map:
+          http: 3000
+        logging:
+          type: fluentd
+          config:
+            fluentd-async-connect: true
+            fluent-address: "$${attr.unique.network.ip-address}:24224"
+            tag: grafana
+
+    resources:
+      cpu: 1024
+      memory: 2048
+      network:
+        port: http
+
+    service:
+      name: grafana
+      port: http
+      check:
+        type: http
+        port: http
+        path: /
+        interval: 10s
+        timeout: 9s
+
+
+    template:
+      destination: "secrets/.env"
+      env: true
+      splay: 60s
+      data: |
+        <<EOH
+        {{ range ls "monitoring/grafana" }}
+          {{ .Key | toUpper }}={{ .Value }}
+        {{ end }}
+        EOH

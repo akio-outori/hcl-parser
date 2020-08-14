@@ -2,21 +2,31 @@ package main
 
 import (
   "fmt"
-  "log"
-  "gopkg.in/yaml.v2"
+  "io/ioutil"
+  "github.com/ghodss/yaml"
 )
 
-type kv struct {
-  String string `yaml:"string,omitempty"`
-}
-
-func create_doc(value []byte) string {
+func create_yaml(value []byte) string {
   return fmt.Sprintf("---\n\n%v\n\n", string(value))
 }
 
-func main() {
-  output, err := yaml.Marshal(&kv{String: "hello world"})
-  if err != nil { log.Fatalf("error: %v", err) }
+func check(e error) {
+  if e != nil {
+    panic(e)
+  }
+}
 
-  fmt.Printf(create_doc(output))
+func main() {
+
+  yml, err := ioutil.ReadFile("test.yml")
+  check(err)
+
+  j2, err := yaml.YAMLToJSON(yml)
+  check(err)
+
+  write_err := ioutil.WriteFile("test.json", j2, 0644)
+  check(write_err)
+
+  fmt.Print(string(j2))
+
 }

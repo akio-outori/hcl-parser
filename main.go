@@ -4,7 +4,8 @@ import (
   "os"
   "fmt"
   "flag"
-  "github.com/akio-outori/hcl-parser/lib/yaml"
+  "github.com/akio-outori/hcl-parser/yaml"
+  "github.com/akio-outori/hcl-parser/nomad"
 )
 
 var input string

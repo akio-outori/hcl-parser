@@ -1,9 +1,6 @@
 package nomad
 
-import (
-  "github.com/hashicorp/nomad/api"
-  "github.com/hashicorp/terraform-provider-nomad/nomad/core/jobspec"
-)
+import "github.com/hashicorp/nomad/api"
 
 func Echo(message string) string {
   return message

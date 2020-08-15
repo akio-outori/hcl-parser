@@ -18,31 +18,40 @@ func getHelp() {
   os.Exit(1)
 }
 
-func getYAML(input string) []byte {
+func getYaml(input string) []byte {
   yml, err := ioutil.ReadFile(input)
-  check_error(err)
+  checkError(err)
   return yml
 }
 
-func convertYAML(input []byte) []byte {
+func convertYaml(input []byte) []byte {
   json, err := yaml.YAMLToJSON(input)
-  check_error(err)
+  checkError(err)
   return json
 }
 
-func writeJSON(input []byte, output string) {
-  check_error(ioutil.WriteFile(output, input, 0644))
+func writeJson(input []byte, output string) {
+  checkError(ioutil.WriteFile(output, input, 0644))
 }
 
-func check_error(e error) {
+func writeStdout(input string) {
+  fmt.Print(input)
+}
+
+func checkError(e error) {
   if e != nil {
     panic(e)
   }
 }
 
-func check_variable(variable string) {
-  if variable == "" {
-    getHelp()
+func checkVariable(variable string, required bool) int {
+  if variable != "" {
+    return 0
+  } else {
+    if required == true {
+      getHelp()
+    }
+    return 1
   }
 }
 
@@ -55,13 +64,17 @@ func init() {
   flag.Parse()
 
   // Check Variables
-  check_variable(input)
-  check_variable(output)
+  checkVariable(input, true)
+  checkVariable(output, false)
 }
 
 func main() {
-  yml  := getYAML(input)
-  json := convertYAML(yml)
-  writeJSON(json, output)
-  fmt.Print(string(json))
+  yml  := getYaml(input)
+  json := convertYaml(yml)
+
+  if checkVariable(output, false) == 0 {
+    writeJson(json, output)
+  } else {
+    writeStdout(string(json))
+  }
 }

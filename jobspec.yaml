@@ -10,6 +10,7 @@ Datacenters:
 Constraints:
   - LTarget: "$${node.class}"
     RTarget: monitoring
+    Operand: =
 
 TaskGroups:
   

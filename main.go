@@ -8,6 +8,7 @@ import (
   "github.com/akio-outori/hcl-parser/nomad"
 )
 
+var action string
 var input string
 var output string
 
@@ -31,6 +32,7 @@ func checkVariable(variable string, required bool) int {
 
 func init() {
   // Set Variables
+  flag.stringVar(&action, "", "", "action to take")
   flag.StringVar(&input, "input", "", "file to convert to json")
   flag.StringVar(&output, "output", "", "output file for the json rendered template")
 
@@ -38,11 +40,25 @@ func init() {
   flag.Parse()
 
   // Check Variables
+  checkVariable(action, true)
   checkVariable(input, true)
   checkVariable(output, false)
 }
 
 func main() {
-  json := yaml.Convert(input)
-  yaml.Write(json, output)
+
+  switch {
+
+    case action == "convert":
+      json := yaml.Convert(input)
+      yaml.Write(json, output)
+
+    case action == "nomad":
+      nomad.Echo("test")
+      nomad.SubmitJob("test")
+
+    default:
+      getHelp()
+
+  }
 }

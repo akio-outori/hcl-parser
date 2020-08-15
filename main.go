@@ -4,8 +4,7 @@ import (
   "os"
   "fmt"
   "flag"
-  "io/ioutil"
-  "github.com/ghodss/yaml"
+  "github.com/akio-outori/hcl-parser/lib/yaml"
 )
 
 var input string
@@ -16,32 +15,6 @@ func getHelp() {
   fmt.Print("Usage:\n\n")
   flag.PrintDefaults()
   os.Exit(1)
-}
-
-func getYaml(input string) []byte {
-  yml, err := ioutil.ReadFile(input)
-  checkError(err)
-  return yml
-}
-
-func convertYaml(input []byte) []byte {
-  json, err := yaml.YAMLToJSON(input)
-  checkError(err)
-  return json
-}
-
-func writeJson(input []byte, output string) {
-  checkError(ioutil.WriteFile(output, input, 0644))
-}
-
-func writeStdout(input string) {
-  fmt.Print(input)
-}
-
-func checkError(e error) {
-  if e != nil {
-    panic(e)
-  }
 }
 
 func checkVariable(variable string, required bool) int {
@@ -69,12 +42,6 @@ func init() {
 }
 
 func main() {
-  yml  := getYaml(input)
-  json := convertYaml(yml)
-
-  if checkVariable(output, false) == 0 {
-    writeJson(json, output)
-  } else {
-    writeStdout(string(json))
-  }
+  json := yaml.Convert(input)
+  yaml.Write(json, output)
 }
